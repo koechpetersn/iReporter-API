@@ -39,3 +39,15 @@ class IncidentsResource(Resource, IncidentModel):
 		return make_response(jsonify({"message" : "No incidents found"}),404)
 		
 
+class IncidentResource(Resource):
+	def __init__(self):
+		self.store = IncidentModel()
+
+	def delete(self, incident_id=None):
+		for item in incidents:
+			if item["id"] == incident_id:
+				resp = self.store.rm()
+		return  make_response(jsonify({
+			"message": "delete successful",
+			"All other incidents" : resp
+			}),200)
