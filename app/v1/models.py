@@ -4,10 +4,9 @@ class DB():
 	'''In memory database'''
 	def __init__(self):
 		'''create an empty database'''
-		self.redflag = []
+		self.incidents = []
 	def drop(self):
-		'''Drop entire database'''
-		self.__init__():
+		self.__init__()
 db = DB()
 class Base():
 	'''class to be inherited by all other models'''
@@ -19,33 +18,33 @@ class Base():
 			self.id = 1
 		current = self.current()
 		getattr(db, self.tablename).append(current)
-		return self.view
-	def view(self):
-		'''view object as a dictionary'''
-		return self.current
+		return self.current()
+	# def view(self):
+	# 	'''view object as a dictionary'''
+	# 	return self.current
 
-class Redflag(Base):
-	'''redflags models'''
-	def __init__(self,id,title,type,comment):
+class Incident(Base):
+	'''incident models'''
+	def __init__(self,title,nature,comment):
 		self.id = 0
 		self.title = title
-		self.type = type
+		self.nature = nature
 		self.comment = comment
+		self.tablename = 'incidents'
 	def current(self):
-		'''current redflags'''
+		'''current incidents'''
 		current = {
 		'title' : self.title,
-		'type' : self.type,
+		'nature' : self.nature,
 		'comment' : self.comment,
 		'id' : self.id
 		}
 		return current
-	def view(self):
-		'''view redflags info'''
-		return {
-		'title' : self.title,
-		'type' : self.type,
-		'comment' : self.comment,
-		'id' : self.id
-		}
-		
+	# def view(self):
+	# 	'''view incidents info'''
+	# 	return {
+	# 	'title' : self.title,
+	# 	'nature' : self.nature,
+	# 	'comment' : self.comment,
+	# 	'id' : self.id
+	# 	}
