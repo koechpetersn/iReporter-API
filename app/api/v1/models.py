@@ -1,50 +1,42 @@
 '''Models and their methods'''
+incidents = []
 
-class DB():
-	'''In memory database'''
+class IncidentModel():
 	def __init__(self):
-		'''create an empty database'''
-		self.incidents = []
-	def drop(self):
-		self.__init__()
-db = DB()
-class Base():
-	'''class to be inherited by all other models'''
-	def save(self):
-		'''Add object to DB'''
-		try:
-			self.id = getattr(db, self.tablename)[-1]['id']+1
-		except IndexError:
+		self.store = incidents
+		if len(incidents) == 0:
 			self.id = 1
-		current = self.current()
-		getattr(db, self.tablename).append(current)
-		return self.current()
-	# def view(self):
-	# 	'''view object as a dictionary'''
-	# 	return self.current
-
-class Incident(Base):
-	'''incident models'''
-	def __init__(self,title,nature,comment):
-		self.id = 0
-		self.title = title
-		self.nature = nature
-		self.comment = comment
-		self.tablename = 'incidents'
-	def current(self):
-		'''current incidents'''
-		current = {
-		'title' : self.title,
-		'nature' : self.nature,
-		'comment' : self.comment,
-		'id' : self.id
+		else:
+			self.id = incidents[-1]['id'] + 1
+		
+	'''class to be inherited by all other models'''
+	def save_incident(self,title,nature,comment):
+	
+		item = {
+		"id": self.id,
+		"title" : title,
+		"nature" : nature,
+		"comment" : comment
 		}
-		return current
-	# def view(self):
-	# 	'''view incidents info'''
-	# 	return {
-	# 	'title' : self.title,
-	# 	'nature' : self.nature,
-	# 	'comment' : self.comment,
-	# 	'id' : self.id
-	# 	}
+		self.store.append(item)
+		return self.store
+	def view_incidents(self):
+		return self.store
+
+	def view_incident(self, incident_id):
+		for incident in incidents:
+			if incident_id == incident["id"]:
+				return incident
+	def rm(self):
+		for incident in incidents:
+			item = incident
+		self.store.remove(item)
+		return self.store
+		
+	def edit(self, flag_id, data):
+		for post in self.db:
+			if post[id] == flag_id:
+				post.update(data)
+				return post
+
+
