@@ -20,3 +20,22 @@ class IncidentsResource(Resource, IncidentModel):
 			"incident" : resp
 			}),201)
 
+	def get(self, incident_id=None):
+		if incident_id:
+			for item in incidents:
+				if item["id"] == incident_id:
+					resp = self.store.view_incident(incident_id)
+					return make_response(jsonify({
+						"message" : "This is your incident",
+						"incident" : resp
+						}),200)
+	
+		resp = self.store.view_incidents() 
+		if resp:
+			return make_response(jsonify({
+			"message": "Here are your incidents",
+			"All incidents" : resp
+			}),200) 
+		return make_response(jsonify({"message" : "No incidents found"}),404)
+		
+
