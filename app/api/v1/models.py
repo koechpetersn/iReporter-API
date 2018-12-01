@@ -18,8 +18,7 @@ class IncidentModel(UserModel):
 			self.id = 1
 		else:
 			self.id = incidents[-1]['id'] + 1
-		
-	'''class to be inherited by all other models'''
+
 	def save_incident(self,incidentType,location,comment):
 	
 		item = {
