@@ -28,5 +28,22 @@ class IncidentsResource(Resource, IncidentModel):
 			"All incidents" : resp
 			}),200) 
 		return make_response(jsonify({"message" : "No incidents found"}),404)
+		
+
+class IncidentResource(Resource, IncidentModel):
+	def __init__(self):
+		self.store = IncidentModel()
+
+	def get(self, incident_id):
+		if len(incidents) >0:
+			for item in incidents:
+				if item["id"] == incident_id:
+					resp = self.store.view_incident(incident_id)
+					return make_response(jsonify({
+						"message" : "Incident found!",
+						"incident" : resp
+						}),200)
+				
+		return make_response(jsonify({"message" : "No incidents found"}),404)
 
 
