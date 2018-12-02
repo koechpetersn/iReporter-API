@@ -11,43 +11,46 @@ class IncidentsResource(Resource, IncidentModel):
 	
 	def post(self):
 		item = request.get_json(force=True)
-		title = item["title"]
-		nature = item["nature"]
+		incidentType = item["incidentType"]
+		location = item["location"]
 		comment = item["comment"]
-		resp = self.store.save_incident(title, nature, comment)
+		resp = self.store.save_incident(incidentType, location, comment)
 		return make_response(jsonify({
 			"message" : "Incident successfully captured",
 			"incident" : resp
 			}),201)
 
-	def get(self, incident_id=None):
-		if incident_id:
-			for item in incidents:
-				if item["id"] == incident_id:
-					resp = self.store.view_incident(incident_id)
-					return make_response(jsonify({
-						"message" : "This is your incident",
-						"incident" : resp
-						}),200)
-	
+	def get(self):
 		resp = self.store.view_incidents() 
 		if resp:
 			return make_response(jsonify({
-			"message": "Here are your incidents",
+			"message": "All incidents available",
 			"All incidents" : resp
 			}),200) 
 		return make_response(jsonify({"message" : "No incidents found"}),404)
 		
 
-class IncidentResource(Resource):
+class IncidentResource(Resource, IncidentModel):
 	def __init__(self):
 		self.store = IncidentModel()
 
-	def delete(self, incident_id=None):
-		for item in incidents:
-			if item["id"] == incident_id:
-				resp = self.store.rm()
-		return  make_response(jsonify({
-			"message": "delete successful",
-			"All other incidents" : resp
-			}),200)
+	def get(self, incident_id):
+		if len(incidents) >0:
+			for item in incidents:
+				if item["id"] == incident_id:
+					resp = self.store.view_incident(incident_id)
+					return make_response(jsonify({
+						"message" : "Incident found!",
+						"incident" : resp
+						}),200)
+		return make_response(jsonify({"message" : "No incidents found"}),404)
+
+
+
+
+	def delete(self, incident_id):
+		if len(incidents) > 0:
+			resp = self.store.remove_incident(incident_id)
+			return make_response(jsonify({"message" : "Record deleted successfully"}), 200)
+		return make_response(jsonify({"message" : "No incidents found"}),404)
+
