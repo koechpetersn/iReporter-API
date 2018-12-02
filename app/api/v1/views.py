@@ -11,12 +11,11 @@ class IncidentsResource(Resource, IncidentModel):
 	
 	def post(self):
 		item = request.get_json(force=True)
-		title = item["title"]
-		nature = item["nature"]
+		incidentType = item["incidentType"]
+		location = item["location"]
 		comment = item["comment"]
-		resp = self.store.save_incident(title, nature, comment)
+		resp = self.store.save_incident(incidentType, location, comment)
 		return make_response(jsonify({
 			"message" : "Incident successfully captured",
 			"incident" : resp
 			}),201)
-
