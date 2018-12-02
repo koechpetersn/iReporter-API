@@ -45,12 +45,18 @@ class IncidentResource(Resource, IncidentModel):
 						}),200)
 		return make_response(jsonify({"message" : "No incidents found"}),404)
 
-
-
-
 	def delete(self, incident_id):
 		if len(incidents) > 0:
 			resp = self.store.remove_incident(incident_id)
 			return make_response(jsonify({"message" : "Record deleted successfully"}), 200)
 		return make_response(jsonify({"message" : "No incidents found"}),404)
+
+
+	def patch(self, incident_id=None):
+		resp = self.store.edit(incident_id)
+		success_message = "Record updated successfully"
+		if resp:
+			return make_response(jsonify({"message": success_message,"data":resp}), 200)
+		return make_response(jsonify({"status": 404,"error": "Red-flag does not exist"}), 404)
+
 
