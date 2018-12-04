@@ -4,7 +4,7 @@
 <a href="https://codeclimate.com/github/koechpetersn/iReporter-API/maintainability"><img src="https://api.codeclimate.com/v1/badges/8ad00b39780d187adb28/maintainability" /></a>
 
 
-[![Coverage Status](https://coveralls.io/repos/github/koechpetersn/iReporter-API/badge.svg?branch=develop)](https://coveralls.io/github/koechpetersn/iReporter-API?branch=develop)
+<a href='https://coveralls.io/github/koechpetersn/iReporter-API?branch=develop'><img src='https://coveralls.io/repos/github/koechpetersn/iReporter-API/badge.svg?branch=develop' alt='Coverage Status' /></a>
 
 
 A backend for a web application that helps users to create incident records and manipulate their them.
