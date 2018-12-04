@@ -3,18 +3,21 @@ from flask import jsonify, make_response, request, abort
 from app.api.v1.models import IncidentModel, incidents
 
 class IncidentsResource(Resource, IncidentModel):
-	'''class for handling incidents'''
+	"""class for handling incidents"""
 	def __init__(self):
 		self.store = IncidentModel()
 
 
 	
 	def post(self):
-		item = request.get_json(force=True)
-		incidentType = item["incidentType"]
-		location = item["location"]
-		comment = item["comment"]
-		resp = self.store.save_incident(incidentType, location, comment)
+		items = request.get_json(force=True)
+		incidentType = items["incidentType"]
+		location = items["location"]
+		comment = items["comment"]
+		media = items["media"]
+		resp = self.store.save_incident(incidentType, location, comment, media)
+		if resp == "invalid data":
+			return make_response(jsonify({"msg": "Invalid data, Please enter correct details"}),400)
 		return make_response(jsonify({
 			"message" : "Incident successfully captured",
 			"incident" : resp
@@ -31,6 +34,7 @@ class IncidentsResource(Resource, IncidentModel):
 		
 
 class IncidentResource(Resource, IncidentModel):
+	"""class for handling single incidents"""
 	def __init__(self):
 		self.store = IncidentModel()
 
