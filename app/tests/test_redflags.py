@@ -76,7 +76,7 @@ class TestInvalidData(DataCase):
         result = json.loads(response.data)
         expected = "Invalid data, Please enter correct details"
         self.assertEqual(result["msg"], expected)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
 
      
 

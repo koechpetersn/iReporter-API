@@ -32,15 +32,13 @@ class IncidentModel(UserModel):
 		"status" : self.status,
 		'media': media,
 		"comment" : comment
-		
 		}
-		msg1 = "invalid data"
 
 		for item in items:
 			if type(incidentType) != str or type(location) != str or type(comment) != str:
-				return msg1 
+				return "invalid data"
 		self.store.append(items)
-		return self.store
+		return items
 
 	def view_incidents(self):
 		return self.store
@@ -54,13 +52,20 @@ class IncidentModel(UserModel):
 			if item["id"] == incident_id:
 				new_dataset = self.store.remove(item)
 				return new_dataset
-		
+		return "nomatch"
 	def edit(self, incident_id):
 		for incident in incidents:
 			if incident["id"] == incident_id:
-				item = request.get_json(force=True)
-				newval = item["location"]
-				newval2 = item["comment"]
+				items = request.get_json(force=True)
+				for item in items:
+					newval = items["location"]
+					newval2 = items["comment"]
+					newval3 = items["incidentType"]
+					newval4 = items["media"]
+				if type(newval) != str or type(newval2) != str or type(newval3) != str:
+					return "invalid data"
 				incident["location"] = newval
 				incident["comment"] = newval2
+				incident["incidentType"] = newval3
+				incident["media"] = newval4
 				return incident
