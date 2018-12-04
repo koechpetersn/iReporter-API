@@ -12,10 +12,6 @@ script:
   - coverage run --source app -m pytest
   - python -m coverage report -m
   - pytest --cov-report=term-missing --cov=app
-  
-after_success:
-  - coveralls.
-  - codecov --token=KBRcpEjbgDA01IysmrLVe9Wxx7F1RMufM
     
 after_success:
   - coveralls.

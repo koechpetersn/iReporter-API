@@ -1,4 +1,5 @@
 from flask import request
+import datetime
 '''Models and their methods'''
 incidents = []
 users = []
@@ -14,27 +15,31 @@ class IncidentModel(UserModel):
 	def __init__(self):
 		self.store = incidents
 		self.status = "Draft"
+		self.timenow = datetime.datetime.now()
 		if len(incidents) == 0:
 			self.id = 1
 		else:
 			self.id = incidents[-1]['id'] + 1
 		
-	'''class to be inherited by all other models'''
-	def save_incident(self,incidentType,location,comment):
+	def save_incident(self,incidentType,location,comment,media):
 	
-		item = {
+		items = {
 		"id": self.id,
-		#"createdOn": datetime,
-		#"createdBy" : self.createdBy,
+		"createdOn": self.timenow,
+		"createdBy" : UserModel().createdBy,
 		"incidentType" : incidentType,
 		"location" : location,
 		"status" : self.status,
-		#"Images" : [Image,Image],
-		#"Videos" : [Image,Image],
+		'media': media,
 		"comment" : comment
 		
 		}
-		self.store.append(item)
+		msg1 = "invalid data"
+
+		for item in items:
+			if type(incidentType) != str or type(location) != str or type(comment) != str:
+				return msg1 
+		self.store.append(items)
 		return self.store
 
 	def view_incidents(self):
