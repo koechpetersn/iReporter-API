@@ -15,7 +15,7 @@ script:
   
 after_success:
   - coveralls.
-  - codecov --token=Im6bhD79ZFujhndQFTVjOT8D60Zd1caj1
+  - codecov --token=KBRcpEjbgDA01IysmrLVe9Wxx7F1RMufM
     
 after_success:
   - coveralls.
