@@ -66,5 +66,3 @@ Peter Koech
 # Contributions
 
 This repo can be forked and contributed to.
-
-[![Build Status](https://travis-ci.org/koechpetersn/iReporter-API.svg?branch=ch-test-endpoints-162337791)](https://travis-ci.org/koechpetersn/iReporter-API)[![Coverage Status](https://coveralls.io/repos/github/koechpetersn/iReporter-API/badge.svg)]((https://coveralls.io/github/koechpetersn/iReporter-API)
