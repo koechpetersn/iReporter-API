@@ -3,7 +3,7 @@ import json
 
 from json import loads, dumps
 
-from .test_base import BaseCase, DataCase
+from .test_base import BaseCase, MissingField, InvalidTypeInput, SpecialChar, IncidentType
 
 
 
@@ -25,11 +25,9 @@ class TestEditIncident(BaseCase):
     
 
 class TestMultipleIncidents(BaseCase):
-
     """Class to test incidents"""
 
     def test_can_create_incident(self):
-
         """Test the POST functionality for an incident creation."""
 
         response = self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
@@ -48,7 +46,7 @@ class TestMultipleIncidents(BaseCase):
         self.assertEqual(response.status_code, 200)
     
     def test_can_get_specific_incident(self):
-        """Test the POST functionality for viewing a single incident."""
+        """Test the GET functionality for viewing a single incident."""
         self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
         response = self.client.get(INCIDENT_URL)
         result = json.loads(response.data)
@@ -59,7 +57,7 @@ class TestMultipleIncidents(BaseCase):
 class TestSingleIncident(BaseCase):
 
     def test_can_delete_incidences(self):
-        """Test the POST functionality of deleting an incident."""
+        """Test the DELETE functionality of deleting an incident."""
         self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
         response = self.client.delete(INCIDENT_URL, data=json.dumps(self.data))
         result = json.loads(response.data)
@@ -67,14 +65,51 @@ class TestSingleIncident(BaseCase):
         self.assertEqual(result["message"], expected)
         self.assertEqual(response.status_code, 200)
 
-class TestInvalidData(DataCase):
-    """Class to test invalid data"""
+class TestInvalidData(InvalidTypeInput):
+    """Class to test invalid data type"""
 
-    def test_invalid_data(self):
+    def test_invalid_data_input(self):
         """Test the robustness of the code if invalid data is supplied."""
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.invalid_data))
+        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.invalid_type_data))
         result = json.loads(response.data)
-        expected = "Invalid data, Please enter correct details"
+        expected = "Only image or video is accepted to media field"
+        self.assertEqual(result["msg"], expected)
+        self.assertEqual(response.status_code, 201)
+
+class TestMissingField(MissingField):
+    """Class to test missing field data"""
+
+    def test_missing_fields(self):
+        """Test the robustness of the code if some fields are left out."""
+        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.missing_field_data))
+        result = json.loads(response.data)
+        expected = "Missing fields, Please supply data for all fields"
+        self.assertEqual(result["msg"], expected)
+        self.assertEqual(response.status_code, 201)
+
+class TestSpeacialChar(SpecialChar):
+    """Class to test special character inclusion in data"""
+
+    def test_special_char_comment(self):
+        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.specialchar_data))
+        result = json.loads(response.data)
+        expected = "Special characters not allowed!"
+        self.assertEqual(result["msg"], expected)
+        self.assertEqual(response.status_code, 201)
+
+    def test_special_char_location(self):
+        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.specialchar_data))
+        result = json.loads(response.data)
+        expected = "Special characters not allowed!"
+        self.assertEqual(result["msg"], expected)
+        self.assertEqual(response.status_code, 201)
+
+class TestIncidentType(IncidentType):
+    """Class to test valid incindent title"""
+    def test_special_char(self):
+        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.incidents_data))
+        result = json.loads(response.data)
+        expected = "Only redflag or intervention is accepted to incidentType field"
         self.assertEqual(result["msg"], expected)
         self.assertEqual(response.status_code, 201)
 
