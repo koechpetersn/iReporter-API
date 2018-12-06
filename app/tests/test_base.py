@@ -25,7 +25,7 @@ class BaseCase(TestCase):
         "media" : "image",
         "comment" : "nothing yet"
         }
-class DataCase(TestCase):
+class InvalidTypeInput(TestCase):
 
     def setUp(self):
 
@@ -33,15 +33,63 @@ class DataCase(TestCase):
 
         self.client = self.app.test_client()
 
-        self.invalid_data = {
+        self.invalid_type_data = {
         "id" : 1,
         "createdBy" : 1,
         "incidentType" : "redflag",
-        "location" : 234,
+        "location" : "Mombasa",
         "status" : "Draft",
-        "media" : 45,
-        "comment" : True
+        "media" : 78,
+        "comment" : "data"
         }
+class MissingField(TestCase):
 
+    def setUp(self):
+
+        self.app = create_app()
+
+        self.client = self.app.test_client()
+
+        self.missing_field_data = {
+        "id" : 1,
+        "createdBy" : 1,
+        "incidentType" : "",
+        "location" : "Nakuru",
+        "status" : "Draft",
+        "media" : "image",
+        "comment" : "data"
+        }
+class SpecialChar(TestCase):
+
+    def setUp(self):
+        self.app = create_app()
+
+        self.client = self.app.test_client()
+
+        self.specialchar_data = {
+        "id" : 1,
+        "createdBy" : 1,
+        "incidentType" : "redflag",
+        "location" : "Nakuru%)",
+        "status" : "Draft",
+        "media" : "image",
+        "comment" : "sj%"
+        }
+class IncidentType(TestCase):
+
+    def setUp(self):
+        self.app = create_app()
+
+        self.client = self.app.test_client()
+
+        self.incidents_data = {
+        "id" : 1,
+        "createdBy" : 1,
+        "incidentType" : "redflaG1",
+        "location" : "Nakuru",
+        "status" : "Draft",
+        "media" : "image",
+        "comment" : "sj%"
+        }
 
 

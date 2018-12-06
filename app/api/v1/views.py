@@ -11,20 +11,46 @@ class IncidentsResource(Resource, IncidentModel):
 	
 	def post(self):
 		items = request.get_json(force=True)
-		fields=items.keys()
-		for key in fields:
-			if not items[key]:
-				return make_response(jsonify({"msg": "Missing fields, Please supply data for all fields"}),201)
+		
 
 		incidentType = items["incidentType"]
 		location = items["location"]
 		comment = items["comment"]
 		media = items["media"]
 
+		resp = self.validate_fields(incidentType, location,comment)
+		if resp == "null fields":
+			return make_response(jsonify({
+				"msg": "Missing fields, Please supply data for all fields"
+				}),201)
+
+		resp = self.validate_incidentType(incidentType)
+		if resp == "invalid field data":
+			return make_response(jsonify({
+				"msg": "Only redflag or intervention is accepted to incidentType field"
+				}),201)
+
+		resp = self.validate_mediaType(media)
+		if resp == "invalid media data":
+			return make_response(jsonify({
+				"msg": "Only image or video is accepted to media field"
+				}),201)
+
+		resp = self.check_comment(comment)
+		if resp == "err":
+			return make_response(jsonify({"msg": "Special characters not allowed!"}),201)
+
+		resp = self.check_location(location)
+		if resp == "err":
+			return make_response(jsonify({"msg": "Special characters not allowed!"}),201)
+
+		resp = self.check_type(comment,location)
+		if resp == "invalid data":
+			return make_response(jsonify({
+				"msg": "Invalid data, Please enter correct details"
+				}),201)
 
 		resp = self.store.save_incident(incidentType, location, comment, media)
-		if resp == "invalid data":
-			return make_response(jsonify({"msg": "Invalid data, Please enter correct details"}),201)	
 		return make_response(jsonify({
 			"message" : "Incident successfully captured",
 			"incident" : resp
@@ -54,12 +80,16 @@ class IncidentResource(Resource, IncidentModel):
 						"message" : "Incident found!",
 						"incident" : resp
 						}),200)
-		return make_response(jsonify({"message" : "No incident found with that id"}),200)
+		return make_response(jsonify({
+			"message" : "No incident found with that id"
+			}),200)
 
 	def delete(self, incident_id):
 		resp = self.store.remove_incident(incident_id)
-		if resp == "nomatch":
-			return make_response(jsonify({"message" : "No incident with that id is available for deletion!"}), 200)
+		if resp == "no match":
+			return make_response(jsonify({
+				"message" : "No incident with that id is available for deletion!"
+				}), 200)
 		return make_response(jsonify({"message" : "Record deleted successfully"}), 200)
 		
 
@@ -70,10 +100,16 @@ class IncidentResource(Resource, IncidentModel):
 				resp = self.store.edit(incident_id)
 				success_message = "Record updated successfully"
 				if resp != "invalid data":
-					return make_response(jsonify({"message": success_message,"data":resp}), 200)
+					return make_response(jsonify({
+						"message": success_message,"data":resp
+						}), 200)
 				
-				return make_response(jsonify({"error":resp}), 200)
+				return make_response(jsonify({
+					"error":"Please ensure you supply valid data"
+					}), 200)
 
-		return make_response(jsonify({"status": 200,"error": "Red-flag does not exist"}), 200)
+		return make_response(jsonify({
+			"status": 200,"error": "Really? That incident isn't available!"
+			}), 200)
 
 
