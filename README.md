@@ -4,15 +4,17 @@
 <a href="https://codeclimate.com/github/koechpetersn/iReporter-API/maintainability"><img src="https://api.codeclimate.com/v1/badges/8ad00b39780d187adb28/maintainability" /></a>
 
 
-[![Coverage Status](https://coveralls.io/repos/github/koechpetersn/iReporter-API/badge.svg)](https://coveralls.io/github/koechpetersn/iReporter-API)
+[![Coverage Status](https://coveralls.io/repos/github/koechpetersn/iReporter-API/badge.svg?branch=develop)](https://coveralls.io/github/koechpetersn/iReporter-API?branch=develop)
 
 
-A backend for a web application that helps users to create incident records and manipulate their them.
+
+
+A backend for a web application that helps users to create incident records and manipulate them.
 
 ### Branches
 * develop - all the features developed.
 * features - contains all the features created.
-* chores - contains tests and lfa feedback implementation
+* chores - contains tests for the application
 
 
 ### Prerequisites
@@ -56,8 +58,10 @@ $ pytest
 
 
 # Hosting 
-https://ireporter-koech.herokuapp.com/api/v1/incidents
+[View hosted app here](https://ireporter-koech.herokuapp.com/api/v1/incidents)
 
+# Documentation
+[Open documentation](https://documenter.getpostman.com/view/5986869/RzfgoUbN)
 
 # Author
 
@@ -66,3 +70,5 @@ Peter Koech
 # Contributions
 
 This repo can be forked and contributed to.
+
+

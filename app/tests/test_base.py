@@ -1,6 +1,4 @@
 '''Base test class.'''
-import json
-import datetime
 from unittest import TestCase
 from app import create_app
 
@@ -20,12 +18,16 @@ class BaseCase(TestCase):
         "id" : 1,
         "createdBy" : 1,
         "incidentType" : "redflag",
-        "location" : "2345",
+        "location" : "fhkdhf",
         "status" : "Draft",
         "media" : "image",
         "comment" : "nothing yet"
         }
+
+    def tearDown(self):
+        self.data.clear()
 class InvalidTypeInput(TestCase):
+    """class to Test invalid input edge case"""
 
     def setUp(self):
 
@@ -43,6 +45,7 @@ class InvalidTypeInput(TestCase):
         "comment" : "data"
         }
 class MissingField(TestCase):
+    """class to test missing field edge case"""
 
     def setUp(self):
 
@@ -60,6 +63,7 @@ class MissingField(TestCase):
         "comment" : "data"
         }
 class SpecialChar(TestCase):
+    """class to test special character inclusion edge case"""
 
     def setUp(self):
         self.app = create_app()
@@ -76,6 +80,7 @@ class SpecialChar(TestCase):
         "comment" : "sj%"
         }
 class IncidentType(TestCase):
+    """class to test invalid incident type"""
 
     def setUp(self):
         self.app = create_app()
@@ -91,5 +96,3 @@ class IncidentType(TestCase):
         "media" : "image",
         "comment" : "sj%"
         }
-
-
