@@ -12,8 +12,6 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(configurations["development"])
     app.url_map.strict_slashes = False
-    app_context = app.app_context()
-    app_context.push()
     api = Api(app)
     api.add_resource(IncidentsResource, '/api/v1/incidents')
     api.add_resource(IncidentResource,'/api/v1/incidents/<int:incident_id>')

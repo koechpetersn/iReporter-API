@@ -24,55 +24,39 @@ class IncidentsResource(Resource, IncidentModel):
 
 		resp = self.validate_numbers_only(comment,location)
 		if resp == "num only":
-			return make_response(jsonify({
-				"message": "Please provide a more comprehensive report"
-				}),201)
-
+			msg = "Please provide a more comprehensive report"
 		
-		resp = self.check_whitespace(comment,location)
-		if resp == "white space field":
+		elif self.check_whitespace(comment,location) == "white space field":
+			msg = "Missing fields, Cannot be empty"
+
+		elif self.validate_fields(incidentType, location,comment) == "null fields":
+			msg= "Missing fields, Please supply data for all fields"
+
+		elif self.validate_incidentType(incidentType) == "invalid field data":
+			msg = "Only redflag or intervention is accepted to incidentType field"
+
+		elif self.validate_mediaType(media) == "invalid media data":
+			msg = "Only image or video is accepted to media field"
+
+		elif self.check_comment(comment) == "err":
+			msg = "Special characters not allowed!"
+
+		elif self.check_location(location) == "err":
+			msg = "Special characters not allowed!"
+
+		elif self.check_type(comment,location) == "invalid data":
+			msg = "Invalid data, Please enter correct details"
+
+		else:
+			msg = "Incident successfully captured"
+
+		if msg == "Incident successfully captured":
+			save = self.store.save_incident(incidentType, location, comment, media)
 			return make_response(jsonify({
-				"message": "Missing fields, Cannot be empty"
+				"message": msg,
+				"incident" : save
 				}),201)
-
-
-		resp = self.validate_fields(incidentType, location,comment)
-		if resp == "null fields":
-			return make_response(jsonify({
-				"message": "Missing fields, Please supply data for all fields"
-				}),201)
-
-		resp = self.validate_incidentType(incidentType)
-		if resp == "invalid field data":
-			return make_response(jsonify({
-				"message": "Only redflag or intervention is accepted to incidentType field"
-				}),201)
-
-		resp = self.validate_mediaType(media)
-		if resp == "invalid media data":
-			return make_response(jsonify({
-				"message": "Only image or video is accepted to media field"
-				}),201)
-
-		resp = self.check_comment(comment)
-		if resp == "err":
-			return make_response(jsonify({"message": "Special characters not allowed!"}),201)
-
-		resp = self.check_location(location)
-		if resp == "err":
-			return make_response(jsonify({"message": "Special characters not allowed!"}),201)
-
-		resp = self.check_type(comment,location)
-		if resp == "invalid data":
-			return make_response(jsonify({
-				"message": "Invalid data, Please enter correct details"
-				}),201)
-
-		resp = self.store.save_incident(incidentType, location, comment, media)
-		return make_response(jsonify({
-			"message" : "Incident successfully captured",
-			"incident" : resp
-			}),201)
+		return make_response(jsonify({"message" : msg}),201)
 
 	def get(self):
 		"""View incidents using get method"""
