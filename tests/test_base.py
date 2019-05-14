@@ -1,4 +1,3 @@
-'''Base test class.'''
 from unittest import TestCase
 from app import create_app
 
@@ -10,7 +9,7 @@ class BaseCase(TestCase):
 
         '''Set up test application.'''
 
-        self.app = create_app()
+        self.app = create_app(configure="testing")
 
         self.client = self.app.test_client()
 
@@ -31,7 +30,7 @@ class InvalidTypeInput(TestCase):
 
     def setUp(self):
 
-        self.app = create_app()
+        self.app = create_app(configure="testing")
 
         self.client = self.app.test_client()
 
@@ -49,7 +48,7 @@ class MissingField(TestCase):
 
     def setUp(self):
 
-        self.app = create_app()
+        self.app = create_app(configure="testing")
 
         self.client = self.app.test_client()
 
@@ -66,7 +65,7 @@ class SpecialChar(TestCase):
     """class to test special character inclusion edge case"""
 
     def setUp(self):
-        self.app = create_app()
+        self.app = create_app(configure="testing")
 
         self.client = self.app.test_client()
 
@@ -83,7 +82,7 @@ class IncidentType(TestCase):
     """class to test invalid incident type"""
 
     def setUp(self):
-        self.app = create_app()
+        self.app = create_app(configure="testing")
 
         self.client = self.app.test_client()
 
