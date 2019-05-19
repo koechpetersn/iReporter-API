@@ -23,12 +23,11 @@ class IncidentTestCase(unittest.TestCase):
             # create all tables
             db.create_all()
 
-    def register_user(self, email="user@test.com", password="test1234",username="mose",role="norm"):
+    def register_user(self, email="user@test.com", password="test1234",username="mose"):
         """This helper method helps register a test user."""
         user_data = {
             'email': email,
             "username":username,
-            'role':role,
             'password': password
         }
         return self.client().post('/auth/register', data=user_data)
