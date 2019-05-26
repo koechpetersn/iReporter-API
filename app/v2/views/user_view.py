@@ -43,42 +43,25 @@ def incidents():
                 else:
                     return "lol"
             else:
-                admin_user=User.query.filter_by(id=user_id).first()
-                print(admin_user)
-                print(admin_user.role)
-                if admin_user.role == "admin":
-                    redflags = Incident.query.all()
-                    results = []
-                    for redflag in redflags:
-                        obj = {
-                            'id': redflag.id,
-                            'comment':redflag.comment,
-                            'created_by':redflag.created_by
-                                    }
-                        results.append(obj)
-                    return make_response(jsonify(results)), 200
-
-                else:
+                # GET
+                redflags = Incident.query.filter_by(created_by=user_id)
                 
-                    # GET
-                    redflags = Incident.query.filter_by(created_by=user_id)
+                results = []
+                for redflag in redflags:
+                    obj = {
+                        'id': redflag.id,
+                        'comment':redflag.comment,
+                        'location' : redflag.location,
+                        'media' : redflag.media,
+                        'status' : redflag.status,
+                        'incidentType': redflag.incidentType,
+                        'date_created': redflag.date_created,
+                        'date_modified': redflag.date_modified,
+                        'created_by':redflag.created_by
+                        }
                     
-                    results = []
-                    for redflag in redflags:
-                        obj = {
-                            'id': redflag.id,
-                            'comment':redflag.comment,
-                            'location' : redflag.location,
-                            'media' : redflag.media,
-                            'status' : redflag.status,
-                            'incidentType': redflag.incidentType,
-                            'date_created': redflag.date_created,
-                            'date_modified': redflag.date_modified,
-                            'created_by':redflag.created_by
-                            }
-                        
-                        results.append(obj)
-                    return make_response(jsonify(results)), 200
+                    results.append(obj)
+                return make_response(jsonify(results)), 200
         
         else:
             # user is not legit, so the payload is an error message
@@ -100,8 +83,7 @@ def incident(id, **kwargs):
             incident = Incident.query.filter_by(id=id).first()
 
             if not incident:
-                # return "not incident", 404
-                abort(404)
+                return "not incident", 404
 
             elif request.method == "PUT":
                 incidentType = str(request.data.get('incidentType',''))

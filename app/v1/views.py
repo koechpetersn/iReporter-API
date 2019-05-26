@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask import jsonify, make_response, request, abort
-from app.api.v1.models import IncidentModel, incidents
+from app.v1.models import IncidentModel, incidents
 import re
 class IncidentsResource(Resource, IncidentModel):
 	"""class for handling incidents"""

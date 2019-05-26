@@ -1,7 +1,7 @@
 '''Tests product resource.'''
 import json
 
-from tests.test_base import BaseCase, MissingField, InvalidTypeInput, SpecialChar, IncidentType
+from .test_base import BaseCase, MissingField, InvalidTypeInput, SpecialChar, IncidentType
 
 
 
