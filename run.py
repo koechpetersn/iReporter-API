@@ -1,4 +1,4 @@
-'''Run the app.'''
+"""Ireporter app entry point"""
 import os
 
 from app import create_app

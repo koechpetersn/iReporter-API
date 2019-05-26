@@ -1,18 +1,20 @@
 
 from os import getenv
 from time import time
+from psycopg2.extras import RealDictCursor
 
 from app.v2.db_con import db_connection
 
 conn = db_connection(getenv("DB_NAME"))
 conn.set_session(autocommit=True)
-curr = conn.cursor()
+curr = conn.cursor(cursor_factory=RealDictCursor)
 
-class Incident():
+class IncidentModel():
     """incident model"""
-    def __init__(self,comment,location):
+    def __init__(self,comment,location,created_by):
         self.comment=comment
         self.location=location
+        self.created_by=created_by
     
     def save(self):
         """save to db"""
@@ -22,32 +24,40 @@ class Incident():
         '''Add incident details to table.'''
         curr.execute(
             """
-            INSERT INTO incidents (comment, location)
-            VALUES(%s,%s)
+            INSERT INTO incidents (comment, location,created_by)
+            VALUES(%s,%s,%s)
             """,
-            (self.comment, self.location)
+            (self.comment, self.location,self.created_by)
         )
    
         self.save()
 
     @staticmethod
+    def get_all_by(user_id):
+        '''Get all incidents by specific user.'''
+        query = "SELECT * FROM incidents WHERE created_by={}".format(user_id)
+        curr.execute(query)
+        incidents = curr.fetchall()
+        return incidents
+
+    @staticmethod
     def get_all():
-        '''Get all incidents.'''
+        """Admin get all incidents by all users"""
         query = "SELECT * FROM incidents"
-        cur.execute(query)
-        incidents = cur.fetchall()
+        curr.execute(query)
+        incidents = curr.fetchall()
         return incidents
 
     @classmethod
-    def delete(cls, id):
+    def delete_incident(cls, id):
         '''Delete an incident from db.'''
         query = "DELETE FROM incidents WHERE id={}".format(id)
-        cur.execute(query)
+        curr.execute(query)
 
     def update(self, id, new_data):
         '''Update incident details given new information.'''
         for key, val in new_data.items():
-            cur.execute("""
+            curr.execute("""
             UPDATE incidents SET {}='{}' WHERE id={}
             """.format(key, val, id))
 
@@ -56,18 +66,18 @@ class Incident():
         '''Fetch incident by key'''
         for key, val in kwargs.items():
             query = "SELECT * FROM incidents WHERE {}='{}'".format(key, val)
-            cur.execute(query)
-            incident = cur.fetchone()
+            curr.execute(query)
+            incident = curr.fetchone()
             return incident
 
     @staticmethod
     def view(incident):
         '''View a product information.'''
-        id = incident[0]
+        id = incident["id"]
         return {
             'id': id,
-            'comment': incident[1],
-            'location': incident[2],
-            'created_by':incident[3]
+            'comment': incident["comment"],
+            'location': incident["location"],
+            'created_by':incident["created_by"]
         }
          

@@ -1,34 +1,28 @@
 from psycopg2 import connect
 import os
-def db_connection(db_name):
-    """connects to db"""
+def db_connection(db=None):
+    """connects to the right db"""
+    if 
     try:  
         con = connect(
-                database=db_name,
+                database=db,
                 user=os.getenv('USER'),
                 password=os.getenv('PASSWORD'),
                 host=os.getenv('HOST'))
         return con
     except Exception as e:
         raise e
-
-# db_url = os.getenv('DATABASE_URI')
-# conn = db_connection("ireporter")
-
-
-
-# con = psycopg2.connect(db_url)
-
+        
 def user_table(curr):
     """Create User Table"""
     curr.execute(
         """
         CREATE TABLE users(
             id serial PRIMARY KEY,
-            role VARCHAR NOT NULL,
             name VARCHAR NOT NULL,
             email VARCHAR NOT NULL UNIQUE,
-            password VARCHAR NOT NULL
+            password VARCHAR NOT NULL,
+            role VARCHAR NOT NULL
         );
         """
     )
@@ -47,9 +41,9 @@ def incidents_table(curr):
         """
     )
 
-def create():
+def create(db=None):
     """create connection and all tables"""
-    conn = db_connection("ireporter")
+    conn = db_connection(db=db)
     if not isinstance(conn, str):
         print('success')
     else:
