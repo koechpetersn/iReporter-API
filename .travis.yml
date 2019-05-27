@@ -1,25 +1,21 @@
-
 language: python
 
 python:
-  "3.6"
+  - "3.6"
 
 install:
- - pip install -r requirements.txt 
- - pip install coveralls codecov
- - pip install codeclimate-test-reporter
+  - pip install -r requirements.txt
 
 before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
+  - export APP_SECRET_KEY="something"
+  - psql -c "CREATE DATABASE development;" -U postgres
+  - psql -l;
+  
 
-script:
- - pytest tests/ --cov-report=term-missing --cov=app
-
-after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-
+script: 
+  
+  - coverage run --source app -m pytest
+  - python -m coverage report -m
+  
 after_success:
   - coveralls
-  - codecov --token=sXwfdtlmRegFW8mqAbUMjTVwkfloZ4iZE
