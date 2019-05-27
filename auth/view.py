@@ -20,9 +20,8 @@ class RegistrationView(MethodView):
                 post_data = request.data
                 # Register the user
                 email = post_data['email']
-                username = post_data['username']
                 password = post_data['password']
-                user = User(username=username,email=email, password=password)
+                user = User(email=email, password=password, role = "normal")
                 # print(user)
                 user.save()
 
@@ -62,10 +61,8 @@ class AdminRegistrationView(MethodView):
                 post_data = request.data
                 # Register the user
                 email = post_data['email']
-                username = post_data['username']
                 password = post_data['password']
-                role = post_data['role']
-                user = User(username=username,email=email, password=password,role=role)
+                user = User(email=email, password=password,role="admin")
                 # print(user)
                 user.save()
 
@@ -126,11 +123,48 @@ class LoginView(MethodView):
             # Return a server error using the HTTP Error Code 500 (Internal Server Error)
             return make_response(jsonify(response)), 500
 
+class AdminLogin(MethodView):
+    """Handles admin login and access token generation."""
+    def post(self):
+        """Handle POST request for thus view. Url ---> /auth/login"""
+        user = User.query.filter_by(email=request.data['email']).first()
+        if user and user.password_is_valid(request.data['password']):
+            check_role = user.role if user else None
+            if check_role == "admin":
+                access_token = user.generate_admin_token(check_role)
+                import pdb; pdb.set_trace()
+                if access_token:
+                    response = {
+                        'message': 'You logged in successfully.',
+                        'access_token': access_token.decode()
+                    }
+                    return make_response(jsonify(response)), 200
+            else:
+                response = {
+                    "message":"Not admin user! Please login as a normal user"
+                }
+
+        else:
+            # User does not exist. Therefore, we return an error message
+            response = {
+                'message': 'Invalid email or password, Please try again'
+            }
+            return make_response(jsonify(response)), 401
+
 registration_view = RegistrationView.as_view('register_view')
 admin_registration_view = AdminRegistrationView.as_view('admin_register_view')
 login_view = LoginView.as_view('login_view')
+
+admin_signin_view = AdminLogin.as_view('admin_signin_view')
 # Define the rule for the registration url --->  /auth/register
 # Then add the rule to the blueprint
+
+auth_blueprint.add_url_rule(
+    '/v2/admin/signin',
+    view_func=admin_signin_view,
+    methods=['POST']
+)
+
 auth_blueprint.add_url_rule(
     '/auth/register',
     view_func=registration_view,

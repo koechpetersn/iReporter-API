@@ -12,16 +12,14 @@ class User(db.Model):
 
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255))
-    role = db.Column(db.String(255),default="normal")
+    role = db.Column(db.String(255))
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     date_registred = db.Column(db.DateTime, default=db.func.current_timestamp())
     incidents = db.relationship('Incident', order_by='Incident.id', cascade="all, delete-orphan")
 
-    def __init__(self,username,email,password,role="normal"):
+    def __init__(self,email,password,role="normal"):
         self.email = email
-        self.username = username
         self.password = Bcrypt().generate_password_hash(password).decode()
         self.role=role
     
@@ -31,7 +29,6 @@ class User(db.Model):
     def view(self):
         '''def'''
         return {
-            'username':self.username,
             'email':self.email,
             'role':self.role,
             'id':self.id
@@ -47,20 +44,37 @@ class User(db.Model):
         return Incident.query.filter_by(id=user_id)
     
     def generate_token(self,user_id):
-        # key = getenv('SECRET')
-        # payload = {
-        #     'user_id':self.id
-        #     }
-
-        # return jwt.encode(payload=payload,key=str(key),algorithm='HS256').decode('utf-8')
         """ Generates the access token"""
 
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(seconds=600),
+                'exp': datetime.utcnow() + timedelta(seconds=360000),
                 'iat': datetime.utcnow(),
                 'sub': user_id
+            }
+            # create the byte string token using the payload and the SECRET key
+            jwt_string = jwt.encode(
+                payload,
+                getenv('SECRET'),
+                algorithm='HS256'
+            )
+            
+            return jwt_string
+
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
+
+    def generate_admin_token(self,role):
+        """ Generates the access token"""
+
+        try:
+            # set up a payload with an expiration time
+            payload = {
+                'exp': datetime.utcnow() + timedelta(seconds=360000),
+                'iat': datetime.utcnow(),
+                'sub': role
             }
             # create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(

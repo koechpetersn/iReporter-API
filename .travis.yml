@@ -4,10 +4,18 @@ python:
   - "3.6"
 
 install:
-  - pip install -r requirements.txt 
-  - pip install coveralls codecov
+  - pip install -r requirements.txt
+
+before_script:
+  - export APP_SECRET_KEY="something"
+  - psql -c "CREATE DATABASE development;" -U postgres
+  - psql -l;
+  
+
 script: 
-  - pytest --cov-report=term-missing --cov=app  
+  
+  - coverage run --source app -m pytest
+  - python -m coverage report -m
+  
 after_success:
   - coveralls
-  - codecov --token=sXwfdtlmRegFW8mqAbUMjTVwkfloZ4iZE

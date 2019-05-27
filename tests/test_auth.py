@@ -16,7 +16,6 @@ class AuthTestCase(unittest.TestCase):
         # This is the user test json data with a predefined email and password
         self.user_data = {
             'email': 'test@example.com',
-            'username':'tester',
             'role':'norm',
             'password': 'test_password'
         }
