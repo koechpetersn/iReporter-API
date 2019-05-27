@@ -1,4 +1,4 @@
-"""Ireporter app entry point"""
+'''iReporter app entry point'''
 import os
 
 from app import create_app
