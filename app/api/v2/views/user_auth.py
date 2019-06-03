@@ -1,19 +1,19 @@
-from . import auth_blueprint
+"""User auth"""
+from . import v2_blueprint
 
 from flask.views import MethodView
 from flask import make_response, request, jsonify
-from app.api.v2.models import User
-
-
+from app.api.v2.models.models import UserModel
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/register"""
+        """Handle POST request for this view. Url ---> /v2/user/signup"""
 
         # Query to see if the user already exists
-        user = User.query.filter_by(email=request.data['email']).first()
+        user = UserModel.query.filter_by(email=request.data['email']).first()
+        
         if not user:
             # There is no user so we'll try to register them
             try:
@@ -21,10 +21,8 @@ class RegistrationView(MethodView):
                 # Register the user
                 email = post_data['email']
                 password = post_data['password']
-                user = User(email=email, password=password, role = "normal")
-                # print(user)
+                user = UserModel(email=email, password=password, role = "normal")
                 user.save()
-
                 response = {
                     'message': 'You registered successfully. Please log in.',
                     'user':user.view()
@@ -51,10 +49,12 @@ class AdminRegistrationView(MethodView):
     """This class registers a new admin user."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/register/admin"""
+        """ Handle POST request for this view. Url ---> /v2/admin/signup
+            URLS for admin registration are protected during front-end implementation
+        """
 
         # Query to see if the user already exists
-        user = User.query.filter_by(email=request.data['email']).first()
+        user = UserModel.query.filter_by(email=request.data['email']).first()
         if not user:
             # There is no user so we'll try to register them
             try:
@@ -62,7 +62,7 @@ class AdminRegistrationView(MethodView):
                 # Register the user
                 email = post_data['email']
                 password = post_data['password']
-                user = User(email=email, password=password,role="admin")
+                user = UserModel(email=email, password=password,role="admin")
                 # print(user)
                 user.save()
 
@@ -86,18 +86,18 @@ class AdminRegistrationView(MethodView):
                 'user':user.view()
             }
 
-            return make_response(jsonify(response)), 202
+            return make_response(jsonify(response)), 401
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/login"""
+        """Handle POST request for this view. Url ---> /v2/user/signin"""
         try:
             # post_data = request.get_json()
 
             # Get the user object using their email (unique to every user)
-            user = User.query.filter_by(email=request.data['email']).first()
+            user = UserModel.query.filter_by(email=request.data['email']).first()
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
                 # Generate the access token. This will be used as the authorization header
@@ -106,7 +106,8 @@ class LoginView(MethodView):
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()
+                        'user access token': access_token.decode('utf-8'),
+                        'user id':user.id
                     }
                     return make_response(jsonify(response)), 200
             else:
@@ -126,23 +127,23 @@ class LoginView(MethodView):
 class AdminLogin(MethodView):
     """Handles admin login and access token generation."""
     def post(self):
-        """Handle POST request for thus view. Url ---> /auth/login"""
-        user = User.query.filter_by(email=request.data['email']).first()
+        """Handle POST request for thus view. Url ---> /v2/admin/signin"""
+        user = UserModel.query.filter_by(email=request.data['email']).first()
         if user and user.password_is_valid(request.data['password']):
             check_role = user.role if user else None
             if check_role == "admin":
                 access_token = user.generate_admin_token(check_role)
-                import pdb; pdb.set_trace()
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()
+                        'admin access token': access_token.decode('utf-8')
                     }
                     return make_response(jsonify(response)), 200
             else:
                 response = {
                     "message":"Not admin user! Please login as a normal user"
                 }
+                return make_response(jsonify(response)), 401
 
         else:
             # User does not exist. Therefore, we return an error message
@@ -151,32 +152,31 @@ class AdminLogin(MethodView):
             }
             return make_response(jsonify(response)), 401
 
+# Define the rule for the registration url
+# Then add the rule to the blueprint
 registration_view = RegistrationView.as_view('register_view')
 admin_registration_view = AdminRegistrationView.as_view('admin_register_view')
 login_view = LoginView.as_view('login_view')
-
 admin_signin_view = AdminLogin.as_view('admin_signin_view')
-# Define the rule for the registration url --->  /auth/register
-# Then add the rule to the blueprint
 
-auth_blueprint.add_url_rule(
+v2_blueprint.add_url_rule(
     '/v2/admin/signin',
     view_func=admin_signin_view,
     methods=['POST']
 )
 
-auth_blueprint.add_url_rule(
-    '/auth/register',
+v2_blueprint.add_url_rule(
+    '/v2/user/signup',
     view_func=registration_view,
     methods=['POST'])
 
-auth_blueprint.add_url_rule(
-    '/auth/register/admin',
+v2_blueprint.add_url_rule(
+    '/v2/admin/signup',
     view_func=admin_registration_view,
     methods=['POST'])
 
-auth_blueprint.add_url_rule(
-    '/auth/login',
+v2_blueprint.add_url_rule(
+    '/v2/user/signin',
     view_func=login_view,
     methods=['POST']
 )

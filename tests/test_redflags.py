@@ -1,113 +1,95 @@
 '''Tests product resource.'''
 import json
 
-from tests.test_base import BaseCase, MissingField, InvalidTypeInput, SpecialChar, IncidentType
+from tests.test_base import BaseCase
 
-
-
-INCIDENTS_URL = '/api/v1/incidents/'
-
-INCIDENT_URL = '/api/v1/incidents/1'
-
-
+POST_URL = '/v1/user/post/incident'
+GET_URL = 'v1/user/get/incident/1'
 
 class TestEditIncident(BaseCase):
     """class to test EDIT functionality"""
-    def test_can_edit_incidences(self):
-        self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
-        response = self.client.patch(INCIDENT_URL, data=json.dumps(self.data))
-        result = json.loads(response.data)
-        expected = "Record updated successfully"
-        self.assertEqual(result["message"], expected)
-        self.assertEqual(response.status_code, 200)
-    
-
-class TestMultipleIncidents(BaseCase):
-    """Class to test POST and GET functionality"""
 
     def test_can_create_incident(self):
         """Test the POST functionality."""
-
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
+        response = self.client.post(POST_URL, data=json.dumps(self.data))
         result = json.loads(response.data)
-        expected = "Incident successfully captured"
+        expected = "Incident reported successfully"
         self.assertEqual(result["message"], expected)
         self.assertEqual(response.status_code, 201)
     
     def test_can_get_incidents(self):
         """Test the GET functionality."""
-        self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
-        response = self.client.get(INCIDENTS_URL)
+        self.client.post(POST_URL, data=json.dumps(self.data))
+        self.client.post(POST_URL, data=json.dumps(self.data2))
+        response = self.client.get('/v1/user/get/incidents')
         result = json.loads(response.data)
-        expected = "All incidents available"
+        expected = "Incidents found"
         self.assertEqual(result["message"], expected)
         self.assertEqual(response.status_code, 200)
     
     def test_can_get_specific_incident(self):
         """Test the GET functionality for viewing a single incident."""
-        self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
-        response = self.client.get(INCIDENT_URL)
+        self.client.post(POST_URL, data=json.dumps(self.data))
+        response = self.client.get(GET_URL)
         result = json.loads(response.data)
-        expected = "Incident found!"
+        expected = "Incident found"
         self.assertEqual(result["message"], expected)
         self.assertEqual(response.status_code, 200)
-    
-class TestSingleIncident(BaseCase):
-    """Class to test a specific incident by id"""
 
+    def test_can_edit_incidences(self):
+        resp = self.client.post(POST_URL, data=json.dumps(self.data))
+        response = self.client.patch('/v1/user/put/incident/1', data=json.dumps(self.data2))
+        result = json.loads(response.data)
+        expected = "Record updated successfully"
+        self.assertEqual(result["message"], expected)
+        self.assertEqual(response.status_code, 200)
+
+        response2 = self.client.patch('/v1/user/put/incident/1', data=json.dumps(self.invalid_type))
+        result = json.loads(response2.data)
+        expected2 = "Description must be a string and not integer"
+        self.assertEqual(result["message"], expected2)
+        self.assertEqual(response2.status_code, 401)
+    
     def test_can_delete_incidences(self):
         """Test the DELETE functionality of deleting an incident."""
-        self.client.post(INCIDENTS_URL, data=json.dumps(self.data))
-        response = self.client.delete(INCIDENT_URL, data=json.dumps(self.data))
+        self.client.post(POST_URL, data=json.dumps(self.data))
+        response = self.client.delete('/v1/user/del/incident/1')
         result = json.loads(response.data)
         expected = 'Record deleted successfully'
         self.assertEqual(result["message"], expected)
         self.assertEqual(response.status_code, 200)
-
-class TestInvalidData(InvalidTypeInput):
-    """Class to test invalid data type"""
-
-    def test_invalid_data_input(self):
-        """Test the robustness of the code if invalid data is supplied."""
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.invalid_type_data))
+        response = self.client.get(GET_URL)
         result = json.loads(response.data)
-        expected = "Only image or video is accepted to media field"
+        expected = "Incident not found"
         self.assertEqual(result["message"], expected)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 404)
 
-class TestMissingField(MissingField):
-    """Class to test missing field data"""
-
-    def test_missing_fields(self):
-        """Test the robustness of the code if some fields are left out."""
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.missing_field_data))
+    def test_can_catch_invalid_data_input_error(self):
+        """Test the robustness  if invalid data type is supplied."""
+        response = self.client.post(POST_URL, data=json.dumps(self.invalid_type))
         result = json.loads(response.data)
-        expected = "Missing fields, Please supply data for all fields"
+        expected = "Description must be a string and not integer"
         self.assertEqual(result["message"], expected)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 401)
 
-class TestSpeacialChar(SpecialChar):
-    """Class to test special character inclusion in data"""
-
-    def test_special_char_comment(self):
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.specialchar_data))
+    def test_can_reject_special_char_input(self):
+        response = self.client.post(POST_URL, data=json.dumps(self.specialchar_data))
         result = json.loads(response.data)
         expected = "Special characters not allowed!"
         self.assertEqual(result["message"], expected)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 401)
 
-    def test_special_char_location(self):
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.specialchar_data))
+    def test_can_reject_empty_strings(self):
+        response = self.client.post(POST_URL, data=json.dumps(self.empty_field_data))
         result = json.loads(response.data)
-        expected = "Special characters not allowed!"
+        expected = "Location cannot be blank"
         self.assertEqual(result["message"], expected)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 401)
 
-class TestIncidentType(IncidentType):
-    """Class to test valid incindent type"""
-    def test_special_char(self):
-        response = self.client.post(INCIDENTS_URL, data=json.dumps(self.incidents_data))
+    def test_can_reject_whitespaces(self):
+        response = self.client.post(POST_URL, data=json.dumps(self.whitespace_data))
         result = json.loads(response.data)
-        expected = "Only redflag or intervention is accepted to incidentType field"
+        expected = "Location cannot be left blank"
         self.assertEqual(result["message"], expected)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 401)
+

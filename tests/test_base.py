@@ -1,6 +1,6 @@
 from unittest import TestCase
 from app import create_app
-
+from app.api.v1.models import db
 
 class BaseCase(TestCase):
     '''Base class to be inherited by all other testcases.'''
@@ -12,86 +12,54 @@ class BaseCase(TestCase):
         self.app = create_app(configure="testing")
 
         self.client = self.app.test_client()
+        self.app_context = self.app.app_context()
+        self.app_context.push()
 
         self.data = {
-        "id" : 1,
-        "createdBy" : 1,
-        "incidentType" : "redflag",
         "location" : "fhkdhf",
-        "status" : "Draft",
-        "media" : "image",
-        "comment" : "nothing yet"
+        "description" :"hdshgh"
         }
 
-    def tearDown(self):
-        self.data.clear()
-class InvalidTypeInput(TestCase):
-    """class to Test invalid input edge case"""
-
-    def setUp(self):
-
-        self.app = create_app(configure="testing")
-
-        self.client = self.app.test_client()
-
-        self.invalid_type_data = {
-        "id" : 1,
-        "createdBy" : 1,
-        "incidentType" : "redflag",
-        "location" : "Mombasa",
-        "status" : "Draft",
-        "media" : 78,
-        "comment" : "data"
-        }
-class MissingField(TestCase):
-    """class to test missing field edge case"""
-
-    def setUp(self):
-
-        self.app = create_app(configure="testing")
-
-        self.client = self.app.test_client()
-
-        self.missing_field_data = {
-        "id" : 1,
-        "createdBy" : 1,
-        "incidentType" : "",
+        self.data2 = {
         "location" : "Nakuru",
-        "status" : "Draft",
-        "media" : "image",
-        "comment" : "data"
+        "description" : "sj%"
         }
-class SpecialChar(TestCase):
-    """class to test special character inclusion edge case"""
 
-    def setUp(self):
-        self.app = create_app(configure="testing")
+        self.invalid_type = {
+        "location" : "Mombasa",
+        "description" : 89
+        }
 
-        self.client = self.app.test_client()
+        self.empty_field_data = {
+        "description" : "Nakuru",
+        "location":""
+
+        }
+
+        self.whitespace_data = {
+        "description" : "Nakuru",
+        "location":" "
+
+        }
 
         self.specialchar_data = {
-        "id" : 1,
-        "createdBy" : 1,
-        "incidentType" : "redflag",
-        "location" : "Nakuru%)",
-        "status" : "Draft",
-        "media" : "image",
-        "comment" : "sj%"
+        "location" : "n&*&ds",
+        "description" : "dfg"
         }
-class IncidentType(TestCase):
-    """class to test invalid incident type"""
 
-    def setUp(self):
-        self.app = create_app(configure="testing")
 
-        self.client = self.app.test_client()
+    def tearDown(self):
+        '''Delete database and recreate it with no data.'''
+        db.drop()
+        self.app_context.pop()
+        
 
-        self.incidents_data = {
-        "id" : 1,
-        "createdBy" : 1,
-        "incidentType" : "redflaG1",
-        "location" : "Nakuru",
-        "status" : "Draft",
-        "media" : "image",
-        "comment" : "sj%"
-        }
+
+
+
+
+
+
+
+
+

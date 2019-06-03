@@ -1,7 +1,6 @@
 from flask import request
 
-from app.v2.models.incident_models import IncidentModel
-from app.v2.models.user_models import UserModel
+from app.api.v2.models.models import UserModel
 
 class Base():
     """Base class to extract auth headers"""
@@ -15,5 +14,5 @@ class Base():
             return payload
 
         else:
-            response = "You are not authorized to perform this operation"
+            response = "not authorized"
             return response

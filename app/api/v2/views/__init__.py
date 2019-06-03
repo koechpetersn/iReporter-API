@@ -3,6 +3,8 @@
 from flask import Blueprint
 
 # This instance of a Blueprint that represents the authentication blueprint
-auth_blueprint = Blueprint('auth', __name__)
+v2_blueprint = Blueprint('v2', __name__)
 
-from . import view
+from . import user_auth
+from . import manage_users
+from . import manage_incidents
